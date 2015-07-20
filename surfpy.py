@@ -3,6 +3,11 @@ import sys
 import subprocess
 import urllib
 
+def print_help():
+    print("""Usage: $ surfpy [engine tag] [your search terms]
+    If the engine tag is not defined in the options the search terms along with the given tag will be passed to a fallback search engine.
+    """)
+
 # Options:
 browser = "firefox" #insert the command for your preferred browser here.
 
@@ -20,7 +25,7 @@ available_engines = {
 # Now this is doing stuff.
 
 if len(sys.argv) < 3:
-    help()
+    print_help()
     sys.exit()
 
 search_engine = sys.argv[1]
