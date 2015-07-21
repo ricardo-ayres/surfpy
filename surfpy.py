@@ -1,13 +1,14 @@
 #!/usr/bin/python2
 import sys
 import subprocess
-import urllib
+from urllib import urlencode
 
 def print_help():
     global fallback_engine
     print("Usage:\n$ surfpy [engine tag] [your search terms]")
     print("$ surfpy -l (or --list) lists your tags and descriptions and exits.")
-    print("$ surfpy -h (or --help) prints this help and exits.") 
+    print("$ surfpy -h (or --help) prints this help and exits.")
+    print("$ surfpy --dmenu launches dmenu for interactive tag selection.")
     print("""If the engine tag is not defined in the options all
 the arguments will be passed to a fallback search engine
 defined in the options.""")
@@ -41,23 +42,43 @@ available_engines = {
 }
 
 ##### End of options. #####
-   
+
 if "--list" in sys.argv[:2:] or "-l" in sys.argv[:2:]:
     list_engines()
     sys.exit(0)
+    
 if "--help" in sys.argv[:2:] or "-h" in sys.argv or len(sys.argv[:2:]) < 2:
     print_help()
     sys.exit(0)
+    
+if "--dmenu" in sys.argv[:2:]:
+    dmenu_tags = ''
+    for tag in available_engines:
+        dmenu_tags += tag + '\n'
+    dmenu_command = "echo \"%s\" | dmenu -p 'Surfpy:'" % dmenu_tags
+    
+    try:
+        input_list = subprocess.check_output(
+            dmenu_command,
+            stderr=subprocess.STDOUT,
+            shell=True).strip().split()
+      
+    except subprocess.CalledProcessError:
+        sys.exit(0)
+        
+else:
+    input_list = sys.argv[1::]
 
-if sys.argv[1] in available_engines:
-    search_engine = sys.argv[1]
-    search_string = " ".join(sys.argv[2::])
+if input_list[0] in available_engines:
+    search_engine = input_list[0]
+    search_string = " ".join(input_list[1::])
+    
 else:
     search_engine = fallback_engine
-    search_string = " ".join(sys.argv[1::])
+    search_string = " ".join(input_list)
 
 engine_url = available_engines[search_engine][0]
 search_prefix = available_engines[search_engine][1]
-query_url = engine_url + urllib.urlencode({search_prefix:search_string})
+query_url = engine_url + urlencode({search_prefix:search_string})
 subprocess.Popen([browser, query_url])
 sys.exit(0)
