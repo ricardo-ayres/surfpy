@@ -51,11 +51,7 @@ if "--help" in sys.argv[:2:] or "-h" in sys.argv or len(sys.argv[:2:]) < 2:
     print_help()
     sys.exit(0)
     
-if "-b" in sys.argv[:2:]:
-    browser_index = sys.argv.index("-b")+1
-    browser = sys.argv[browser_index]
-    
-if "--dmenu" in sys.argv:
+if "--dmenu" in sys.argv[:2:]:
     dmenu_tags = ''
     for tag in available_engines:
         dmenu_tags += tag + '\n'
