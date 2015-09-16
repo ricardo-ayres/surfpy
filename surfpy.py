@@ -44,6 +44,7 @@ available_engines = {
 ##### End of options. #####
 
 print_only = False
+input_list = sys.argv[1::]
 
 if "--list" in sys.argv[:2:] or "-l" in sys.argv[:2:]:
     list_engines()
@@ -53,14 +54,18 @@ if "--help" in sys.argv[:2:] or "-h" in sys.argv or len(sys.argv[:2:]) < 2:
     print_help()
     sys.exit(0)
     
-if "-b" in sys.argv[:4:]:
+if "-b" in sys.argv:
     browser_index = sys.argv.index("-b")+1
     browser = sys.argv[browser_index]
+    input_list.remove("-b")
+    input_list.remove(browser)
 
-if "--print-only" in sys.argv[:5:]:
+if "--print-only" in sys.argv:
+    input_list.remove("--print-only")
     print_only = True
     
 if "--dmenu" in sys.argv:
+    input_list.remove("--dmenu")
     dmenu_tags = ''
     for tag in available_engines:
         dmenu_tags += tag + '\n'
@@ -74,9 +79,6 @@ if "--dmenu" in sys.argv:
       
     except subprocess.CalledProcessError:
         sys.exit(0)
-        
-else:
-    input_list = sys.argv[1::]
 
 if input_list[0] in available_engines:
     search_engine = input_list[0]
