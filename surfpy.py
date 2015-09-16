@@ -43,6 +43,8 @@ available_engines = {
 
 ##### End of options. #####
 
+print_only = False
+
 if "--list" in sys.argv[:2:] or "-l" in sys.argv[:2:]:
     list_engines()
     sys.exit(0)
@@ -51,9 +53,12 @@ if "--help" in sys.argv[:2:] or "-h" in sys.argv or len(sys.argv[:2:]) < 2:
     print_help()
     sys.exit(0)
     
-if "-b" in sys.argv[:2:]:
+if "-b" in sys.argv[:4:]:
     browser_index = sys.argv.index("-b")+1
     browser = sys.argv[browser_index]
+
+if "--print-only" in sys.argv[:5:]:
+    print_only = True
     
 if "--dmenu" in sys.argv:
     dmenu_tags = ''
@@ -84,5 +89,10 @@ else:
 engine_url = available_engines[search_engine][0]
 search_prefix = available_engines[search_engine][1]
 query_url = engine_url + urlencode({search_prefix:search_string})
-subprocess.Popen([browser, query_url])
+
+if print_only:
+    print(query_url)
+else:
+    subprocess.Popen([browser, query_url])
+
 sys.exit(0)
