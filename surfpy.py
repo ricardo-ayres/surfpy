@@ -8,6 +8,8 @@ def print_help():
     print("Usage:\n$ surfpy [engine tag] [your search terms]")
     print("$ surfpy -l (or --list) lists your tags and descriptions and exits.")
     print("$ surfpy -h (or --help) prints this help and exits.")
+    print("$ surfpy --print-only will print the string to stdout without passing it to the browser.")
+    print("$ surfpy -b [browser] uses [browser] instead of the browser defined in the options.")
     print("$ surfpy --dmenu launches dmenu for interactive tag selection.")
     print("""If the engine tag is not defined in the options all
 the arguments will be passed to a fallback search engine
@@ -25,6 +27,7 @@ def list_engines():
 
 browser = "firefox" #insert the command for your preferred browser here.
 fallback_engine = "ddg" #set the fallback engine tag you want to use.
+dmenu_arguments = "" # set additional arguments for dmenu, like font selection or color options.
 
 # Search engines:
 ## Insert your custom search engines here following the syntax of the other ones. Don't forget the commas.
@@ -69,7 +72,7 @@ if "--dmenu" in sys.argv:
     dmenu_tags = ''
     for tag in available_engines:
         dmenu_tags += tag + '\n'
-    dmenu_command = "echo \"%s\" | dmenu -p 'Surfpy:'" % dmenu_tags
+    dmenu_command = "echo \"%s\" | dmenu -p 'Surfpy:' %s" % (dmenu_tags, dmenu_arguments)
     
     try:
         input_list = subprocess.check_output(
