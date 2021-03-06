@@ -1,7 +1,8 @@
 #!/bin/env python3
 import sys
 import subprocess
-from urllib.parse import quote as url_quote
+import validators
+from urllib.parse import quote_plus
 
 
 def print_help():
@@ -25,17 +26,11 @@ def print_help():
 class sengine:
     tags = {}
     fallback = None
-    default_browser = ""
+    browser = ""
 
-    def __init__(self, tag, url, description="", browser=None, fallback=False):
+    def __init__(self, tag, url=None, fallback=False, **kwds):
         self.tag = tag
         self.url = url
-        self.description = description
-
-        if browser:
-            self.browser = browser
-        else:
-            self.browser = sengine.default_browser
 
         # register itself as one of the available engines
         sengine.tags[self.tag] = self
@@ -43,6 +38,14 @@ class sengine:
         # set itself as the fallback engine if explicitly specified
         if fallback:
             sengine.fallback = self
+
+        if 'browser' in kwds:
+            self.browser = kwds['browser']
+        if 'description' in kwds:
+            self.description =  kwds['description']
+
+    def get_query(self, search_string):
+        return self.url + quote_plus(search_string)
 
     def __repr__(self):
         return f"{self.tag}\t\t{self.description}"
@@ -55,17 +58,23 @@ class sengine:
             print(engine)
 
 
+class plain_url(sengine):
+    def get_query(self, url):
+        return url
+
+
 ##### Options: #####
 # set additional arguments for dmenu, like font selection or color options.
 dmenu_arguments = ""
-sengine.default_browser = "surf"
+
+# set default browser
+sengine.browser = "surf"
+
+# create a plain_url instance and tag to handle direct urls correctly
+plain_url(tag="url")
 
 # Search engines:
 # Insert your custom search engines here.
-
-sengine(tag="url",
-        url="",
-        description="Launch URL directly")
 
 sengine(fallback=True,
         tag="ddg",
@@ -125,18 +134,23 @@ if "--dmenu" in sys.argv:
 try:
     chosen = sengine.tags[input_list[0]]
     input_list.pop(0)
+
 except:
-    chosen = sengine.fallback
+    if validators.url(input_list[0]) or validators.url("http://"+input_list[0]):
+        chosen = sengine.tags['url']
+    else:
+        chosen = sengine.fallback
 
 search_string = " ".join(input_list)
-query_url = chosen.url + url_quote(search_string)
-if browser:
-    chosen.browser = browser
+query_url = chosen.get_query(search_string)
+
+if not browser:
+    browser = chosen.browser
 
 if print_only:
     print(query_url)
 
 else:
-    subprocess.Popen([chosen.browser, query_url])
+    subprocess.Popen([browser, query_url])
 
 sys.exit(0)
