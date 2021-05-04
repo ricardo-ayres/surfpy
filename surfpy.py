@@ -136,7 +136,9 @@ try:
 	input_list.pop(0)
 
 except:
-	if validators.url(input_list[0]) or validators.url("http://"+input_list[0]):
+	arg = input_list[0]
+	url = lambda x: validators.url(x)
+	if url(arg) or url("http://"+arg) or url("https://"+arg):
 		chosen = sengine.tags['url']
 	else:
 		chosen = sengine.fallback
