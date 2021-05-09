@@ -62,6 +62,10 @@ class plain_url(sengine):
 	def get_query(self, url):
 		return url
 
+class sci_hub(sengine):
+	def get_query(self, doi):
+		return self.url + doi
+
 
 ##### Options: #####
 # set additional arguments for dmenu, like font selection or color options.
@@ -88,6 +92,10 @@ sengine(tag="yt",
 sengine(tag="img",
 		url="https://duckduckgo.com/?ia=images&iax=1&q=",
 		description="DuckDuckGo image search")
+
+sci_hub(tag="scihub",
+		url="https://sci-hub.se/",
+		description="Sci-Hub to Open Science")
 
 ##### End of options. #####
 
@@ -139,7 +147,10 @@ except:
 	arg = input_list[0]
 	url = lambda x: validators.url(x)
 	if url(arg) or url("http://"+arg) or url("https://"+arg):
-		chosen = sengine.tags['url']
+		if "doi.org" in arg:
+			chosen = sengine.tags['scihub']
+		else:
+			chosen = sengine.tags['url']
 	else:
 		chosen = sengine.fallback
 
